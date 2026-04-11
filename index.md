@@ -3,18 +3,7 @@ layout: default
 title: Dr. D's Learning Hub
 ---
 
-<style>
-    .landing-container { 
-        background: white; 
-        padding: 40px; 
-        border-radius: 20px; 
-        box-shadow: 0px 10px 25px rgba(0,0,0,0.1); 
-        text-align: center;
-        margin: 20px auto;
-        max-width: 400px;
-        color: #333; /* Makes text dark enough to read */
-    }
-    
+
     .get-started-btn {
         background-color: #f59e0b;
         color: white !important; /* Forces text to stay white */
