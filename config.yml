@@ -1,9 +1,1 @@
-title: "My Document"
-author: "Your Name"
-date: "2024-04-20"
-output:
-  html_document:
-    theme: journal
-    highlight: tango
-    toc: true
-  
+output: html_document
