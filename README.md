@@ -3,4 +3,4 @@
 # lets learn with dr.D.
 # dr.D makes learning easier for students who dont understand
 # sign in to get started
-[sign in](index.html)
+
