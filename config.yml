@@ -1,7 +1,11 @@
----
 title: "My Document"
+author: "Your Name"
+date: "2024-04-20"
 output:
   html_document:
-    theme: journal  # Options: lumen, paper, darkly, etc.
+    theme: journal
     highlight: tango
----
+    toc: true
+    toc_float: true
+    number_sections: true
+    code_folding: show
