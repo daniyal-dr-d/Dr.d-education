@@ -1,0 +1,7 @@
+---
+title: "My Document"
+output:
+  html_document:
+    theme: journal  # Options: lumen, paper, darkly, etc.
+    highlight: tango
+---
