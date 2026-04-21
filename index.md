@@ -4,5 +4,5 @@
 
 [sindhboard](sindhboard.md)
 
-[matric textbooks](mt.md]
+[matric textbooks](mt.md)
 
