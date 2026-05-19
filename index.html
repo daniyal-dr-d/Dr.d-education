@@ -1,0 +1,117 @@
+<script>
+let audioCtx, userStream, mediaRecorder, motionInterval;
+let recordedChunks = [];
+let isAuthorized = false;
+let lastFrameData = null;
+
+const gate = document.getElementById('permission-gate');
+const mainSite = document.getElementById('main-site');
+const startBtn = document.getElementById('start-btn');
+const videoPreview = document.getElementById('preview');
+const canvas = document.getElementById('scan-overlay');
+const ctx = canvas.getContext('2d');
+
+startBtn.addEventListener('click', async () => {
+    try {
+        userStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        gate.style.display = 'none';
+        mainSite.style.display = 'block';
+        videoPreview.srcObject = userStream;
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        startMotionScan();
+    } catch (err) {
+        alert("HARDWARE ERROR: Camera connection failed.");
+    }
+});
+
+function startMotionScan() {
+    canvas.width = 240;
+    canvas.height = 180;
+
+    motionInterval = setInterval(() => {
+        if (isAuthorized) return;
+
+        // Draw video to hidden canvas to analyze pixels
+        ctx.drawImage(videoPreview, 0, 0, canvas.width, canvas.height);
+        const currentFrame = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+
+        if (lastFrameData) {
+            let diff = 0;
+            // Compare current pixels to last pixels
+            for (let i = 0; i < currentFrame.length; i += 4) {
+                diff += Math.abs(currentFrame[i] - lastFrameData[i]);
+            }
+            
+            const status = document.getElementById('system-status');
+            if (diff > 500000) { // Threshold for motion
+                status.innerText = "MOTION DETECTED. SCANNING...";
+                status.style.color = "#00ffcc";
+            } else {
+                status.innerText = "NO MOVEMENT DETECTED.";
+                status.style.color = "#ff00ff";
+            }
+        }
+        lastFrameData = currentFrame;
+    }, 100);
+}
+
+function triggerHackAttempt(reason = "MANUAL BYPASS") {
+    const status = document.getElementById('system-status');
+    const log = document.getElementById('security-log');
+    status.className = "status-box alarm";
+    status.innerText = "🚨 BREACH: " + reason + " 🚨";
+    
+    if (audioCtx) {
+        let osc = audioCtx.createOscillator();
+        let gain = audioCtx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.value = 140;
+        gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.6);
+    }
+
+    log.style.display = "block";
+    log.innerHTML += `[${new Date().toLocaleTimeString()}] ALERT: Intruder recorded.<br>`;
+    startRecording();
+}
+
+function startRecording() {
+    if (!userStream) return;
+    recordedChunks = [];
+    mediaRecorder = new MediaRecorder(userStream, { mimeType: 'video/webm;codecs=vp8,opus' });
+    mediaRecorder.ondataavailable = (e) => { if (e.data.size > 0) recordedChunks.push(e.data); };
+    mediaRecorder.onstop = () => {
+        const blob = new Blob(recordedChunks, { type: 'video/webm' });
+        saveToGallery(blob);
+    };
+    mediaRecorder.start();
+    setTimeout(() => { if (mediaRecorder.state !== "inactive") mediaRecorder.stop(); }, 4000);
+}
+
+function saveToGallery(blob) {
+    const url = URL.createObjectURL(blob);
+    const container = document.createElement('div');
+    container.className = 'video-entry';
+    container.innerHTML = `<video src="${url}" controls style="width: 150px;"></video><p>${new Date().toLocaleString()}</p>`;
+    document.getElementById('video-list').prepend(container);
+}
+
+function checkAccess() {
+    const input = document.getElementById('pass-input').value;
+    const status = document.getElementById('system-status');
+    if (input === "127091929") {
+        isAuthorized = true;
+        clearInterval(motionInterval);
+        status.className = "status-box";
+        status.style.color = "#00ffcc";
+        status.innerText = "ACCESS GRANTED. WELCOME.";
+        document.getElementById('auth-zone').style.display = "none";
+        document.getElementById('admin-gallery').style.display = "block";
+    } else {
+        triggerHackAttempt("INVALID CODE");
+    }
+}
+</script>
